@@ -4,12 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { ENDPOINT } from '../config/constans'
 
 const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
-const initialForm = {
-  email: 'docente@desafiolatam.com',
-  password: '123456',
-  rol: 'Seleccione un rol',
-  lenguage: 'Seleccione un Lenguage'
-}
+const initialForm = { email: 'docente@desafiolatam.com', password: '123456' }
 
 const Register = () => {
   const navigate = useNavigate()
@@ -17,31 +12,29 @@ const Register = () => {
 
   const handleUser = (event) => setUser({ ...user, [event.target.name]: event.target.value })
 
-  const handleForm = (event) => {
+  const handleForm = async (event) => {
     event.preventDefault()
 
-    if (
-      !user.email.trim() ||
-      !user.password.trim() ||
-      user.rol === 'Seleccione un rol' ||
-      user.lenguage === 'Seleccione un Lenguage'
-    ) {
-      return window.alert('Todos los campos son obligatorias.')
+    if (!user.email.trim() || !user.password.trim()) {
+      return window.alert('Email y password son obligatorios.')
     }
 
     if (!emailRegex.test(user.email)) {
       return window.alert('El formato del email no es correcto!')
     }
 
-    axios.post(ENDPOINT.register, user)
-      .then(() => {
-        window.alert('Usuario registrado con éxito 😀.')
-        navigate('/login')
+    try {
+      await axios.post(ENDPOINT.register, {
+        email: user.email,
+        password: user.password
       })
-      .catch(({ response: { data } }) => {
-        console.error(data)
-        window.alert(`${data.message} 🙁.`)
-      })
+      window.alert('Usuario registrado con éxito 😀.')
+      navigate('/login')
+    } catch (error) {
+      const message = error.response?.data?.message ?? 'No se pudo registrar al usuario'
+      console.error(error)
+      window.alert(`${message} 🙁.`)
+    }
   }
 
   useEffect(() => {
@@ -75,34 +68,6 @@ const Register = () => {
           className='form-control'
           placeholder='Password'
         />
-      </div>
-      <div className='form-group mt-1 '>
-        <label>Rol</label>
-        <select
-          defaultValue={user.rol}
-          onChange={handleUser}
-          name='rol'
-          className='form-select'
-        >
-          <option disabled>Seleccione un rol</option>
-          <option value='Full Stack Developer'>Full Stack Developer</option>
-          <option value='Frontend Developer'>Frontend Developer</option>
-          <option value='Backend Developer'>Backend Developer</option>
-        </select>
-      </div>
-      <div className='form-group mt-1'>
-        <label>Lenguage</label>
-        <select
-          defaultValue={user.lenguage}
-          onChange={handleUser}
-          name='lenguage'
-          className='form-select'
-        >
-          <option disabled>Seleccione un Lenguage</option>
-          <option value='JavaScript'>JavaScript</option>
-          <option value='Python'>Python</option>
-          <option value='Ruby'>Ruby</option>
-        </select>
       </div>
       <button type='submit' className='btn btn-light mt-3'>Registrarme</button>
     </form>

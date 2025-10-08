@@ -4,10 +4,10 @@ import Context from '../contexts/Context'
 
 const Navigation = () => {
   const navigate = useNavigate()
-  const { getDeveloper, setDeveloper } = useContext(Context)
+  const { getDeveloper, clearDeveloper } = useContext(Context)
 
   const logout = () => {
-    setDeveloper()
+    clearDeveloper()
     window.sessionStorage.removeItem('token')
     navigate('/')
   }

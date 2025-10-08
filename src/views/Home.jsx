@@ -1,24 +1,12 @@
-import axios from 'axios'
 import Context from '../contexts/Context'
 import { useContext, useEffect } from 'react'
-import { ENDPOINT } from '../config/constans'
 
 const Home = () => {
-  const { setDeveloper } = useContext(Context)
+  const { refreshDeveloper } = useContext(Context)
 
-  const getDeveloperData = () => {
-    const token = window.sessionStorage.getItem('token')
-    if (token) {
-      axios.get(ENDPOINT.users, { headers: { Authorization: `Bearer ${token}` } })
-        .then(({ data: [user] }) => setDeveloper({ ...user }))
-        .catch(() => {
-          window.sessionStorage.removeItem('token')
-          setDeveloper(null)
-        })
-    }
-  }
-
-  useEffect(getDeveloperData, [])
+  useEffect(() => {
+    refreshDeveloper().catch(() => {})
+  }, [refreshDeveloper])
 
   return (
     <div className='py-5'>

@@ -10,11 +10,11 @@ const initialForm = { email: 'docente@desafiolatam.com', password: '123456' }
 const Login = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState(initialForm)
-  const { setDeveloper } = useContext(Context)
+  const { refreshDeveloper } = useContext(Context)
 
   const handleUser = (event) => setUser({ ...user, [event.target.name]: event.target.value })
 
-  const handleForm = (event) => {
+  const handleForm = async (event) => {
     event.preventDefault()
 
     if (!user.email.trim() || !user.password.trim()) {
@@ -25,17 +25,17 @@ const Login = () => {
       return window.alert('El formato del email no es correcto!')
     }
 
-    axios.post(ENDPOINT.login, user)
-      .then(({ data }) => {
-        window.sessionStorage.setItem('token', data.token)
-        window.alert('Usuario identificado con éxito 😀.')
-        setDeveloper({})
-        navigate('/perfil')
-      })
-      .catch(({ response: { data } }) => {
-        console.error(data)
-        window.alert(`${data.message} 🙁.`)
-      })
+    try {
+      const { data } = await axios.post(ENDPOINT.login, user)
+      window.sessionStorage.setItem('token', data.token)
+      await refreshDeveloper()
+      window.alert('Usuario identificado con éxito 😀.')
+      navigate('/perfil')
+    } catch (error) {
+      const message = error.response?.data?.message ?? 'No se pudo iniciar sesión'
+      console.error(error)
+      window.alert(`${message} 🙁.`)
+    }
   }
 
   return (
